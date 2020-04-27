@@ -8,7 +8,7 @@ simplier reverse proxy for dev environments
 {
     "handlers": [
         {
-            "description": "redirect to ssl",
+            "description": "my dev env",
             "port": 80,
             "type": "proxy",
             "hosts": [
