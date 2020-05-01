@@ -1,20 +1,32 @@
 package resolver
 
 import (
+	"errors"
 	"net/http"
-	"reverso/model"
 )
 
-type redirectResolver struct {
-
+type RedirectHost struct {
+	Address string `json:"address"`
+	Status  int    `json:"status_code"`
 }
 
-func (r *redirectResolver) Resolve(host model.Host, writer http.ResponseWriter, request *http.Request) error {
-	// TODO status 301 or 302?
-	http.Redirect(writer, request, host.Address, http.StatusTemporaryRedirect)
+type redirectResolver struct {
+	host RedirectHost
+}
+
+func (r *redirectResolver) Resolve(writer http.ResponseWriter, request *http.Request) error {
+	status := r.host.Status
+	if status == 0 {
+		status = http.StatusFound
+	}
+
+	http.Redirect(writer, request, r.host.Address, status)
 	return nil
 }
 
-func NewRedirectResolver() Resolver {
-	return &redirectResolver {}
+func NewRedirectResolver(host RedirectHost) (Resolver, error) {
+	if len(host.Address) == 0 {
+		return nil, errors.New("empty redirect address")
+	}
+	return &redirectResolver{host}, nil
 }

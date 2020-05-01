@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"reverso/model"
 	"reverso/reverso"
@@ -22,8 +21,8 @@ func main() {
 	//}
 
 	file, _ := ioutil.ReadFile("config.json")
-	project := model.Project{}
-	err := json.Unmarshal(file, &project)
+	project, err := model.NewProjectFromContent(file)
+
 	if err != nil {
 		panic(err)
 	}

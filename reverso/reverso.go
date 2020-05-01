@@ -12,7 +12,7 @@ type Reverso interface {
 }
 
 type reverso struct {
-	project model.Project
+	project *model.Project
 }
 
 func (r *reverso) Start() error {
@@ -36,11 +36,10 @@ func (r *reverso) Start() error {
 	// TODO: better startup message and use a logger
 	for _, handler := range r.project.Handlers {
 		for _, host := range handler.Hosts {
-			fmt.Printf("[%s] - %s:%d -> %s - %s\n",
+			fmt.Printf("[%s] - %s:%d -> %s\n",
 				host.Type,
 				host.Host,
 				handler.Port,
-				host.Address,
 				host.Description,
 			)
 		}
@@ -50,7 +49,7 @@ func (r *reverso) Start() error {
 	return nil
 }
 
-func NewReverso(project model.Project) Reverso {
+func NewReverso(project *model.Project) Reverso {
 	return &reverso{
 		project: project,
 	}

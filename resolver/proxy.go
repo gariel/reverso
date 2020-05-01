@@ -1,16 +1,31 @@
 package resolver
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"reverso/model"
 	"strings"
 )
 
-type proxyResolver struct {}
+type ProxyHost struct {
+	Address string `json:"address"`
+}
 
-func (p *proxyResolver) Resolve(host model.Host, writer http.ResponseWriter, request *http.Request) error {
+type proxyResolver struct {
+	proxy http.Handler
+}
+
+func (p *proxyResolver) Resolve(writer http.ResponseWriter, request *http.Request) error {
+	p.proxy.ServeHTTP(writer, request)
+	return nil
+}
+
+func NewProxyResolver(host ProxyHost) (Resolver, error) {
+	if len(host.Address) == 0 {
+		return nil, errors.New("empty proxy address")
+	}
+
 	director := func(req *http.Request) {
 		target, _ := url.Parse(host.Address)
 
@@ -32,12 +47,7 @@ func (p *proxyResolver) Resolve(host model.Host, writer http.ResponseWriter, req
 		}
 	}
 	proxy := &httputil.ReverseProxy{Director: director}
-	proxy.ServeHTTP(writer, request)
-	return nil
-}
-
-func NewProxyResolver() Resolver {
-	return &proxyResolver {}
+	return &proxyResolver {proxy}, nil
 }
 
 func singleJoiningSlash(a, b string) string {

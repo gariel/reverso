@@ -2,20 +2,34 @@
     "handlers": [
         {
             "description": "my dev env",
-            "port": 80,
-            "type": "proxy",
+            "port": 8000,
             "hosts": [
                 {
                     "description": "frontend",
                     "host": "local.com",
-                    "type": "proxy",
-                    "address": "http://local.com:3000"
+                    "type": "static",
+                    "directory": "./",
+                    "allow_listing": false
                 },
                 {
                     "description": "flask",
                     "host": "api.local.com",
                     "type": "proxy",
                     "address": "http://local.com:5000"
+                },
+                {
+                    "description": "redirect",
+                    "host": "redirect.local.com",
+                    "type": "redirect",
+                    "address": "http://api.local.com:8000",
+                    "status_code": 301
+                },
+                {
+                    "description": "status",
+                    "host": "status.local.com",
+                    "type": "fixed",
+                    "status_code": 200,
+                    "content": "ok"
                 }
             ]
         }

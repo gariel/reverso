@@ -9,17 +9,22 @@ import (
 )
 
 type serverHandler struct {
-	handler model.Handler
+	handler *model.Handler
 }
 func (s *serverHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	found := false
 	for _, host := range s.handler.Hosts {
 		requestHost := strings.Split(request.Host, ":")[0]
 		if host.Host == requestHost {
-			fmt.Printf("%s: %s -> %s %s\n", host.Type, request.Host, host.Address, host.Description)
+			fmt.Printf("%s -> %s", request.Host, host.Type)
 			found = true
-			res := resolver.GetResolver(host.Type)
-			err := res.Resolve(host, writer, request)
+
+			res, err := resolver.GetResolver(host)
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			err = res.Resolve(writer, request)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -32,7 +37,7 @@ func (s *serverHandler) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 	}
 }
 
-func NewServerHandler(handler model.Handler) http.Handler {
+func NewServerHandler(handler *model.Handler) http.Handler {
 	return &serverHandler{
 		handler: handler,
 	}
